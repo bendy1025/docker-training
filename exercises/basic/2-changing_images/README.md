@@ -1,247 +1,179 @@
-# Exercise 2: Changing images
+---
 
-In this exercise, we'll learn how to modify an existing Docker image, and commit it as a new one.
+# **Exercise 2: Modifying a Docker Image**
 
-To accomplish this, we'll modify the `ubuntu:16.04` image to include the `ping` utility.
+In this exercise, you'll learn how to modify an existing Docker image and save it as a new image. We'll use the `ubuntu` image and add the `ping` command to it.
 
-### Getting setup
+---
 
-First download the `ubuntu:16.04` image with `docker pull`. (You might already have this if you have completed the previous tutorial.)
+## **Step 1: Downloading the Ubuntu Image**
+First, make sure you have the Ubuntu 16.04 image. If you completed Exercise 1, you might already have it.
 
-```
-$ docker pull ubuntu:16.04
-16.04: Pulling from library/ubuntu
-c62795f78da9: Pull complete 
-d4fceeeb758e: Pull complete 
-5c9125a401ae: Pull complete 
-0062f774e994: Pull complete 
-6b33fd031fac: Pull complete 
-Digest: sha256:c2bbf50d276508d73dd865cda7b4ee9b5243f2648647d21e3a471dd3cc4209a0
-Status: Downloaded newer image for ubuntu:16.04
-$
-```
+1. Pull the Ubuntu image from Docker Hub:
 
-### Modifying an image
+   ```sh
+   docker pull ubuntu:16.04
+   ```
 
-Let's run the image in a new container and install the `ping` utility.
+2. Check that the image is available on your machine:
 
-1. First start the container with `/bin/bash`:
+   ```sh
+   docker images
+   ```
 
-    ```
-    $ docker run -it ubuntu:16.04 /bin/bash
-    root@786b94c53c6d:/#
-    ```
+   You should see something like this:
 
-2. Try running `ping` in the terminal.
+   ```sh
+   REPOSITORY   TAG      IMAGE ID       CREATED       SIZE
+   ubuntu       16.04    6a2f32de169d   4 weeks ago   117MB
+   ```
 
-    ```
-    root@786b94c53c6d:/# ping google.com
-    bash: ping: command not found
-    root@786b94c53c6d:/#
-    ```
+---
 
-    The command doesn't exist. The Ubuntu image for Docker only has the bare minimum of software installed to operate the container. That's okay though: we can install the `ping` command.
+## **Step 2: Running a Container from the Image**
+Now, let’s start a container using this image so we can modify it.
 
-2. But first we'll update our software list.
+1. Run an interactive Ubuntu container:
 
-    In Debian-based Linux environments (such as Ubuntu), you can install new software using the `apt` package manager. For those who have experience with Macs, this program is the equivalent of `homebrew`.
+   ```sh
+   docker run -it ubuntu:16.04 bash
+   ```
 
-    By default, to reduce the image size, the Ubuntu image doesn't have a list of the available software packages. We need to update the list of available software:
+   You'll see a prompt inside the container, meaning you're inside a running Ubuntu environment:
 
-    ```
-    root@786b94c53c6d:/# apt-get update
-    Get:1 http://security.ubuntu.com/ubuntu xenial-security InRelease [102 kB]
-    Get:2 http://security.ubuntu.com/ubuntu xenial-security/universe Sources [29.6 kB]   
-    Get:3 http://archive.ubuntu.com/ubuntu xenial InRelease [247 kB]    
-    Get:4 http://security.ubuntu.com/ubuntu xenial-security/main amd64 Packages [308 kB]
-    Get:5 http://security.ubuntu.com/ubuntu xenial-security/restricted amd64 Packages [12.8 kB]
-    Get:6 http://security.ubuntu.com/ubuntu xenial-security/universe amd64 Packages [132 kB]   
-    Get:7 http://security.ubuntu.com/ubuntu xenial-security/multiverse amd64 Packages [2936 B]
-    Get:8 http://archive.ubuntu.com/ubuntu xenial-updates InRelease [102 kB]                 
-    Get:9 http://archive.ubuntu.com/ubuntu xenial-backports InRelease [102 kB]
-    Get:10 http://archive.ubuntu.com/ubuntu xenial/universe Sources [9802 kB]
-    Get:11 http://archive.ubuntu.com/ubuntu xenial/main amd64 Packages [1558 kB]
-    Get:12 http://archive.ubuntu.com/ubuntu xenial/restricted amd64 Packages [14.1 kB]
-    Get:13 http://archive.ubuntu.com/ubuntu xenial/universe amd64 Packages [9827 kB]
-    Get:14 http://archive.ubuntu.com/ubuntu xenial/multiverse amd64 Packages [176 kB]
-    Get:15 http://archive.ubuntu.com/ubuntu xenial-updates/universe Sources [186 kB]
-    Get:16 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 Packages [652 kB]
-    Get:17 http://archive.ubuntu.com/ubuntu xenial-updates/restricted amd64 Packages [13.2 kB]
-    Get:18 http://archive.ubuntu.com/ubuntu xenial-updates/universe amd64 Packages [577 kB]
-    Get:19 http://archive.ubuntu.com/ubuntu xenial-updates/multiverse amd64 Packages [9809 B]
-    Get:20 http://archive.ubuntu.com/ubuntu xenial-backports/main amd64 Packages [4929 B]
-    Get:21 http://archive.ubuntu.com/ubuntu xenial-backports/universe amd64 Packages [2567 B]
-    Fetched 23.9 MB in 5s (4409 kB/s)                
-    Reading package lists... Done
-    root@786b94c53c6d:/#
-    ```
+   ```sh
+   root@123456789abc:/#
+   ```
 
-3. Now we can install the `ping` command.
+2. Try running the `ping` command:
 
-    Call `apt-get install iputils-ping` to install the package containing `ping`:
+   ```sh
+   ping google.com
+   ```
 
-    ```
-    root@786b94c53c6d:/# apt-get install iputils-ping
-    Reading package lists... Done
-    Building dependency tree       
-    Reading state information... Done
-    The following additional packages will be installed:
-      libffi6 libgmp10 libgnutls-openssl27 libgnutls30 libhogweed4 libidn11 libnettle6 libp11-kit0 libtasn1-6
-    Suggested packages:
-      gnutls-bin
-    The following NEW packages will be installed:
-      iputils-ping libffi6 libgmp10 libgnutls-openssl27 libgnutls30 libhogweed4 libidn11 libnettle6 libp11-kit0 libtasn1-6
-    0 upgraded, 10 newly installed, 0 to remove and 0 not upgraded.
-    Need to get 1303 kB of archives.
-    After this operation, 3778 kB of additional disk space will be used.
-    Do you want to continue? [Y/n] Y
-    Get:1 http://archive.ubuntu.com/ubuntu xenial/main amd64 libgmp10 amd64 2:6.1.0+dfsg-2 [240 kB]
-    Get:2 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 libnettle6 amd64 3.2-1ubuntu0.16.04.1 [93.5 kB]
-    Get:3 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 libhogweed4 amd64 3.2-1ubuntu0.16.04.1 [136 kB]
-    Get:4 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 libidn11 amd64 1.32-3ubuntu1.1 [45.6 kB]
-    Get:5 http://archive.ubuntu.com/ubuntu xenial/main amd64 libffi6 amd64 3.2.1-4 [17.8 kB]
-    Get:6 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 libp11-kit0 amd64 0.23.2-5~ubuntu16.04.1 [105 kB]
-    Get:7 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 libtasn1-6 amd64 4.7-3ubuntu0.16.04.1 [43.2 kB]
-    Get:8 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 libgnutls30 amd64 3.4.10-4ubuntu1.2 [547 kB]
-    Get:9 http://archive.ubuntu.com/ubuntu xenial-updates/main amd64 libgnutls-openssl27 amd64 3.4.10-4ubuntu1.2 [21.9 kB]
-    Get:10 http://archive.ubuntu.com/ubuntu xenial/main amd64 iputils-ping amd64 3:20121221-5ubuntu2 [52.7 kB]
-    Fetched 1303 kB in 0s (1767 kB/s)   
-    debconf: delaying package configuration, since apt-utils is not installed
-    Selecting previously unselected package libgmp10:amd64.
-    (Reading database ... 4764 files and directories currently installed.)
-    Preparing to unpack .../libgmp10_2%3a6.1.0+dfsg-2_amd64.deb ...
-    Unpacking libgmp10:amd64 (2:6.1.0+dfsg-2) ...
-    Selecting previously unselected package libnettle6:amd64.
-    Preparing to unpack .../libnettle6_3.2-1ubuntu0.16.04.1_amd64.deb ...
-    Unpacking libnettle6:amd64 (3.2-1ubuntu0.16.04.1) ...
-    Selecting previously unselected package libhogweed4:amd64.
-    Preparing to unpack .../libhogweed4_3.2-1ubuntu0.16.04.1_amd64.deb ...
-    Unpacking libhogweed4:amd64 (3.2-1ubuntu0.16.04.1) ...
-    Selecting previously unselected package libidn11:amd64.
-    Preparing to unpack .../libidn11_1.32-3ubuntu1.1_amd64.deb ...
-    Unpacking libidn11:amd64 (1.32-3ubuntu1.1) ...
-    Selecting previously unselected package libffi6:amd64.
-    Preparing to unpack .../libffi6_3.2.1-4_amd64.deb ...
-    Unpacking libffi6:amd64 (3.2.1-4) ...
-    Selecting previously unselected package libp11-kit0:amd64.
-    Preparing to unpack .../libp11-kit0_0.23.2-5~ubuntu16.04.1_amd64.deb ...
-    Unpacking libp11-kit0:amd64 (0.23.2-5~ubuntu16.04.1) ...
-    Selecting previously unselected package libtasn1-6:amd64.
-    Preparing to unpack .../libtasn1-6_4.7-3ubuntu0.16.04.1_amd64.deb ...
-    Unpacking libtasn1-6:amd64 (4.7-3ubuntu0.16.04.1) ...
-    Selecting previously unselected package libgnutls30:amd64.
-    Preparing to unpack .../libgnutls30_3.4.10-4ubuntu1.2_amd64.deb ...
-    Unpacking libgnutls30:amd64 (3.4.10-4ubuntu1.2) ...
-    Selecting previously unselected package libgnutls-openssl27:amd64.
-    Preparing to unpack .../libgnutls-openssl27_3.4.10-4ubuntu1.2_amd64.deb ...
-    Unpacking libgnutls-openssl27:amd64 (3.4.10-4ubuntu1.2) ...
-    Selecting previously unselected package iputils-ping.
-    Preparing to unpack .../iputils-ping_3%3a20121221-5ubuntu2_amd64.deb ...
-    Unpacking iputils-ping (3:20121221-5ubuntu2) ...
-    Processing triggers for libc-bin (2.23-0ubuntu7) ...
-    Setting up libgmp10:amd64 (2:6.1.0+dfsg-2) ...
-    Setting up libnettle6:amd64 (3.2-1ubuntu0.16.04.1) ...
-    Setting up libhogweed4:amd64 (3.2-1ubuntu0.16.04.1) ...
-    Setting up libidn11:amd64 (1.32-3ubuntu1.1) ...
-    Setting up libffi6:amd64 (3.2.1-4) ...
-    Setting up libp11-kit0:amd64 (0.23.2-5~ubuntu16.04.1) ...
-    Setting up libtasn1-6:amd64 (4.7-3ubuntu0.16.04.1) ...
-    Setting up libgnutls30:amd64 (3.4.10-4ubuntu1.2) ...
-    Setting up libgnutls-openssl27:amd64 (3.4.10-4ubuntu1.2) ...
-    Setting up iputils-ping (3:20121221-5ubuntu2) ...
-    Setcap is not installed, falling back to setuid
-    Processing triggers for libc-bin (2.23-0ubuntu7) ...
-    root@786b94c53c6d:/#
-    ```
+   You'll likely see an error:
 
-4. Finally, we should be able to use `ping`.
+   ```sh
+   bash: ping: command not found
+   ```
 
-    Ping your favorite website. When you've seen enough, `Ctrl+C` to interrupt, then `exit` the container.
+   This is because the default Ubuntu Docker image is minimal and does not include `ping`.
 
-    ```
-    root@786b94c53c6d:/# ping google.com
-    PING google.com (172.217.4.206) 56(84) bytes of data.
-    64 bytes from lga15s48-in-f14.1e100.net (172.217.4.206): icmp_seq=1 ttl=37 time=0.936 ms
-    64 bytes from lga15s48-in-f14.1e100.net (172.217.4.206): icmp_seq=2 ttl=37 time=0.367 ms
-    64 bytes from lga15s48-in-f14.1e100.net (172.217.4.206): icmp_seq=3 ttl=37 time=0.258 ms
-    ^C
-    --- google.com ping statistics ---
-    3 packets transmitted, 3 received, 0% packet loss, time 2033ms
-    rtt min/avg/max/mdev = 0.258/0.520/0.936/0.297 ms
-    root@786b94c53c6d:/# exit
-    exit
-    $
-    ```
+---
 
-### Committing changes
+## **Step 3: Installing the Ping Utility**
+Since `ping` is missing, let's install it.
 
-Installing `ping` isn't very special in itself. But what if you wanted to have `ping` on all of your `ubuntu` containers? You'd have to redo this installation each time you spin up a new container, and that isn't much fun.
+1. First, update the list of available software:
 
-The Docker way is to create a new image. There are two ways to do this: 1) build a new image from scratch or 2) commit a container state as a new image. We'll cover how to do #1 in the "Building Images" exercise, but we can do #2 now.
+   ```sh
+   apt-get update
+   ```
 
-1. Let's find our container to create the new image from.
+   This downloads a list of available software packages so we can install new tools.
 
-    Fortunately, we have a Docker container with our `ping` utility already installed from the previous steps. It should be stopped right now, but let's find its container ID.
+2. Now, install the `ping` command:
 
-    ```
-    $ docker ps -a
-    CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
-    786b94c53c6d        ubuntu:16.04        "/bin/bash"         13 minutes ago      Exited (0) 22 seconds ago                       angry_pike
-    $
-    ```
+   ```sh
+   apt-get install -y iputils-ping
+   ```
 
-2. Now let's commit it as a new image.
+   The `-y` flag tells Ubuntu to automatically confirm the installation.
 
-    `docker commit` takes a container, and allows you to commit its changes as a new image.
+3. Verify that `ping` is installed:
 
-    ```
-    $ docker commit --help
+   ```sh
+   ping -c 3 google.com
+   ```
 
-    Usage:  docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+   If successful, you'll see output like this:
 
-    Create a new image from a container's changes
+   ```sh
+   PING google.com (142.250.64.142) 56(84) bytes of data.
+   64 bytes from google.com: icmp_seq=1 ttl=118 time=10 ms
+   64 bytes from google.com: icmp_seq=2 ttl=118 time=9 ms
+   64 bytes from google.com: icmp_seq=3 ttl=118 time=9 ms
 
-    Options:
-      -a, --author string    Author (e.g., "John Hannibal Smith <hannibal@a-team.com>")
-      -c, --change list      Apply Dockerfile instruction to the created image (default [])
-          --help             Print usage
-      -m, --message string   Commit message
-      -p, --pause            Pause container during commit (default true)
-    $
-    ```
+   --- google.com ping statistics ---
+   3 packets transmitted, 3 received, 0% packet loss, time 2034ms
+   ```
 
-    Pass the container ID, an author, commit message, and give it the name `<DockerHub username>/ping`:
+4. Exit the container:
 
-    ```
-    $ docker commit -a 'David Elner' -m 'Added ping utility.' 786 delner/ping
-    sha256:78ba830008a61a09f9eae8ca4ead0966ff501457c23df0f635e0651253b3d0e3
-    $ 
-    ```
+   ```sh
+   exit
+   ```
 
-    Then check `docker images` to see your new image:
+---
 
-    ```
-    $ docker images
-    REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
-    delner/ping         latest              78ba830008a6        About a minute ago   159MB
-    ubuntu              16.04               6a2f32de169d        4 days ago           117MB
-    $
-    ```
+## **Step 4: Creating a New Image**
+Now that we have modified the container by installing `ping`, we can save this container as a new image so we don’t have to reinstall `ping` every time.
 
-3. Finally run your new image in a new container to see it in action!
+1. Find the **container ID** of the stopped container:
 
-    ```
-    $ docker run -it --rm delner/ping /bin/bash
-    root@3ab21a456c9f:/# ping google.com
-    PING google.com (172.217.4.206) 56(84) bytes of data.
-    64 bytes from lga15s48-in-f14.1e100.net (172.217.4.206): icmp_seq=1 ttl=37 time=1.12 ms
-    64 bytes from lga15s48-in-f14.1e100.net (172.217.4.206): icmp_seq=2 ttl=37 time=0.380 ms
-    64 bytes from lga15s48-in-f14.1e100.net (172.217.4.206): icmp_seq=3 ttl=37 time=0.352 ms
-    ^C
-    --- google.com ping statistics ---
-    3 packets transmitted, 3 received, 0% packet loss, time 2024ms
-    rtt min/avg/max/mdev = 0.352/0.620/1.129/0.360 ms
-    root@3ab21a456c9f:/#
-    ```
+   ```sh
+   docker ps -a
+   ```
 
-# END OF EXERCISE 2
+   You'll see a list of containers, and one will have an **Exited** status. Note its **CONTAINER ID**:
+
+   ```sh
+   CONTAINER ID   IMAGE         COMMAND       STATUS      NAMES
+   123456789abc   ubuntu:16.04  "/bin/bash"   Exited     cool_container
+   ```
+
+2. Use `docker commit` to save this container as a new image:
+
+   ```sh
+   docker commit -a "Your Name" -m "Added ping command" 123456789abc myubuntu:ping
+   ```
+
+   - Replace `123456789abc` with your actual **CONTAINER ID**.
+   - `myubuntu:ping` is the name of the new image.
+   - `-a "Your Name"` adds your name as the author.
+   - `-m "Added ping command"` is a short message describing the change.
+
+3. Verify the new image:
+
+   ```sh
+   docker images
+   ```
+
+   You should see your new image listed:
+
+   ```sh
+   REPOSITORY       TAG     IMAGE ID       CREATED         SIZE
+   myubuntu         ping    9f8a0d3b6c4e   1 minute ago    159MB
+   ubuntu           16.04   6a2f32de169d   4 weeks ago     117MB
+   ```
+
+---
+
+## **Step 5: Running a Container from the New Image**
+Now that we have our new image (`myubuntu:ping`), let's test it.
+
+1. Run a new container from this image:
+
+   ```sh
+   docker run -it myubuntu:ping bash
+   ```
+
+2. Once inside the container, test if `ping` is available:
+
+   ```sh
+   ping -c 3 google.com
+   ```
+
+   If the command works, it means your modified image was created successfully! 🎉
+
+---
+
+## **Summary**
+✅ Pulled an image from Docker Hub  
+✅ Started a container and installed new software (`ping`)  
+✅ Saved the modified container as a new image  
+✅ Created a new container from the modified image  
+
+Now, every time you use `myubuntu:ping`, it will have `ping` pre-installed! 🚀
+
+Would you like to learn how to create a Dockerfile next? That’s an even better way to build custom images! 😊
