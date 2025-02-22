@@ -55,6 +55,38 @@ Since we don’t have any images yet, let’s download one from [Docker Hub](htt
 
 ---
 
+## **Step 2A: Build an Image (build an Image)**
+
+Since we don’t have any images yet, let’s build one from scratch.
+
+1. Create a Dockerfile copy and paste instruction below to build your own image:
+
+```
+# Use the offical Ubuntu image
+FROM ubuntu:latest
+
+# set env var to avoid interactive prompt during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update package lists and install curl and net-tool
+RUN apt-get update && \
+    apt-get install -y curl wget && \
+    apt-get clean &&\
+    rm -rf /var/lib/apt/lists/*
+
+# Set the default cmd to run a shell
+CMD ["/bin/bash"]
+
+```
+
+   ```sh
+   docker build -t ubuntu .
+   ```
+🎉 **Great! You’ve built your first Docker image.**
+
+   Docker will build the image and show progress as it pulls different parts of the image.
+---
+
 ## **Step 3: Running a Container**
 
 A container is a running instance of an image.
